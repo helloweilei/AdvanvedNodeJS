@@ -1,4 +1,8 @@
 const puppeteer = require('puppeteer');
+const KeyGrip = require('keygrip');
+const Buffer = require('safe-buffer').Buffer;
+
+const keys = require('../config/keys');
 
 jest.setTimeout(30000);
 
@@ -26,4 +30,16 @@ test('Jump to auto page', async () => {
   const url = await page.url();
 
   expect(url).toMatch(/accounts\.google\.com/);
+});
+
+test('sign in', () => {
+  const userId = '6476adc8811cf12e9effe911';
+  const sessionString = Buffer.from(JSON.stringify({
+    passport: { user: userId },
+  })).toString('base64');
+
+  const keyGrip = new KeyGrip([keys.cookieKey]);
+  const sig = keyGrip.sign(`session=${sessionString}`);
+
+  console.log(sessionString, sig);
 });
