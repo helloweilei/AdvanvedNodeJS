@@ -32,7 +32,7 @@ test('Jump to auto page', async () => {
   expect(url).toMatch(/accounts\.google\.com/);
 });
 
-test('sign in', () => {
+test('sign in', async () => {
   const userId = '6476adc8811cf12e9effe911';
   const sessionString = Buffer.from(JSON.stringify({
     passport: { user: userId },
@@ -41,5 +41,15 @@ test('sign in', () => {
   const keyGrip = new KeyGrip([keys.cookieKey]);
   const sig = keyGrip.sign(`session=${sessionString}`);
 
-  console.log(sessionString, sig);
+  await page.setCookie({
+    name: 'session', value: sessionString,
+  }, {
+    name: 'session.sig', value: sig,
+  });
+
+  await page.goto('localhost:3000');
+  await page.waitFor('a[href="/auth/logout"]');
+  const text = await page.$eval('a[href="/auth/logout"]', el => el.innerHTML);
+
+  expect(text).toEqual('Logout');
 });
