@@ -1,23 +1,17 @@
-const puppeteer = require('puppeteer');
-const KeyGrip = require('keygrip');
-const Buffer = require('safe-buffer').Buffer;
-
-const keys = require('../config/keys');
+const CustomPage = require('./helper');
+const { getUser } = require('./setup');
 
 jest.setTimeout(30000);
 
-let browser, page;
+let page, user;
 
 beforeEach(async () => {
-  browser = await puppeteer.launch({
-    headless: false
-  });
-  page = await browser.newPage();
+  page = await CustomPage.build();
   await page.goto('localhost:3000');
 });
 
 afterEach(async () => {
-  await browser.close();
+  await page.browser.close();
 });
 
 test('Header is set correctly', async () => {
@@ -33,23 +27,7 @@ test('Jump to auto page', async () => {
 });
 
 test('sign in', async () => {
-  const userId = '6476adc8811cf12e9effe911';
-  const sessionString = Buffer.from(JSON.stringify({
-    passport: { user: userId },
-  })).toString('base64');
-
-  const keyGrip = new KeyGrip([keys.cookieKey]);
-  const sig = keyGrip.sign(`session=${sessionString}`);
-
-  await page.setCookie({
-    name: 'session', value: sessionString,
-  }, {
-    name: 'session.sig', value: sig,
-  });
-
-  await page.goto('localhost:3000');
-  await page.waitFor('a[href="/auth/logout"]');
-  const text = await page.$eval('a[href="/auth/logout"]', el => el.innerHTML);
-
+  await page.login(getUser());
+  const text = await page.getContentOf('a[href="/auth/logout"]');
   expect(text).toEqual('Logout');
 });
