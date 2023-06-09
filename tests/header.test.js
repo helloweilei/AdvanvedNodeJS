@@ -1,9 +1,9 @@
 const CustomPage = require('./helper');
 const { getUser } = require('./setup');
 
-jest.setTimeout(30000);
+jest.setTimeout(5000);
 
-let page, user;
+let page;
 
 beforeEach(async () => {
   page = await CustomPage.build();
@@ -29,5 +29,6 @@ test('Jump to auto page', async () => {
 test('sign in', async () => {
   await page.login(getUser());
   const text = await page.getContentOf('a[href="/auth/logout"]');
+  console.log(text);
   expect(text).toEqual('Logout');
 });

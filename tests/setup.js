@@ -10,19 +10,19 @@ mongoose.connect(keys['mongoURI'], {
   useNewUrlParser: true
 });
 
-let signedUsed = null;
+let signedUser = null;
 
-exports = {
-  getUser: () => signedUsed,
+module.exports = {
+  getUser: () => signedUser,
 };
 
 beforeAll(async () => {
-  signedUsed = await createUser();
+  signedUser = await createUser();
 });
 
 afterAll(async () => {
-  await mongoose.disconnect();
-  if (signedUsed) {
-    await deleteUser(user._id);
+  if (signedUser) {
+    await deleteUser(signedUser._id);
   }
+  await mongoose.disconnect();
 });
