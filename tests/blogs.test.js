@@ -56,5 +56,21 @@ describe('When logged in', () => {
   });
 });
 
+describe('When not logged in', () => {
+  test('can not create post', async () => {
+    const result = await page.evaluate(async () => {
+      return fetch('api/blogs', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ title: 'My title', content: 'My content' }),
+      }).then(res => {
+        return res.json();
+      });
+    });
 
-
+    expect(result).toEqual({ error: 'You must log in!' });
+  });
+});
