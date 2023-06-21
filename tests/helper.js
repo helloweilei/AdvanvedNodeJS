@@ -34,6 +34,21 @@ class CustomPage {
   getContentOf(selector) {
     return this.page.$eval(selector, el => el.innerHTML);
   }
+
+  post(path, data) {
+    return this.page.evaluate(async (_path, _data) => {
+      return fetch(_path, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(_data),
+      }).then(res => {
+        return res.json();
+      });
+    }, path, data);
+  }
 }
 
 module.exports = CustomPage;
